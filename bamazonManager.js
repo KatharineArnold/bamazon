@@ -131,27 +131,30 @@ function addToInventory() {
             ])
 
             .then(function (inquirerResponse) {
-                console.log("Updating inventory...\n");
-                var query = connection.query(
-                    "UPDATE products SET ? WHERE ?",
-                    [
-                        {
-                            stock_quantity: inquirerResponse.addQuantity
-                        },
-                        {
-                            id: inquirerResponse.addInventoryID
-                        }
-                    ],
-                    function (err, res) {
-                        connection.query("SELECT * FROM products WHERE id =" + inquirerResponse.addInventoryID, function (err, res) {
-                            if (err) throw err;
-                            console.log(res[0].product_name + " " + "Inventory updated\n");
+                connection.query("SELECT * FROM products WHERE id =" + inquirerResponse.addInventoryID, function (err, res) {
+                    if (err) throw err;
+                    let product = res[0];
 
-                            // Log all results of the SELECT statement
+                    let newQuantity = parseInt(inquirerResponse.addQuantity) + parseInt(product.stock_quantity)
+
+                    console.log("Updating inventory...\n");
+                    var query = connection.query(
+                        "UPDATE products SET ? WHERE ?",
+                        [
+                            {
+                                stock_quantity: newQuantity
+                            },
+                            {
+                                id: inquirerResponse.addInventoryID
+                            }
+                        ],
+                        function (err, res) {
+                            console.log(product.product_name + " " + "New Quantity" + " " + newQuantity);
+
                             connection.end();
-                        });
-                    });
 
+                        });
+                });
 
             });
     });
